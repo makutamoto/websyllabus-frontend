@@ -1,26 +1,21 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { CssBaseline, Box } from '@material-ui/core';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+import SyllabusController from './SyllabusController';
+import SideMenu from './SideMenu';
+
+export default function App() {
+    return (
+        <React.Fragment>
+            <CssBaseline />
+            <Box display="flex">
+                <Box>
+                    <SideMenu />
+                </Box>
+                <Box flexGrow={1}>
+                    <SyllabusController />
+                </Box>
+            </Box>
+        </React.Fragment>
+    );
 }
-
-export default App;
