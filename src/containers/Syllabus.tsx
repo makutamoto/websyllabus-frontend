@@ -1,31 +1,40 @@
 import React from 'react';
-import { Box, Button, Card, CardContent, Container, Grid, Hidden, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Toolbar, Typography } from '@material-ui/core'
-import { makeStyles } from '@material-ui/core/styles';
+import { Box, Button, Card, CardContent, CircularProgress, Container, Grid, Hidden, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Toolbar, Typography } from '@material-ui/core'
+import { makeStyles, withStyles } from '@material-ui/core/styles';
 import { ReportProblem } from '@material-ui/icons';
-import { TwitterIcon, TwitterShareButton } from 'react-share';
 import { ResponsivePie, PieDatum } from '@nivo/pie';
+import { connect } from 'react-redux';
+
+import { StateType } from '../reducers'
+import { fetchCourseInfo, setMenu } from '../actions';
+import { DispatchType } from '..';
+import { Center } from '../components/Center';
 
 interface CourseTitleProps {
     title: string,
     code: string,
 }
 function CourseTitle(props: CourseTitleProps) {
+    let content = (
+        <Grid container direction="column">
+            <Grid item>
+                <Typography variant="h2">{props.title}</Typography>
+            </Grid>
+            <Grid item>
+                <Typography variant="subtitle2">科目番号：{props.code}</Typography>
+            </Grid>
+        </Grid>
+    );
+
     return (
         <React.Fragment>
-            <Typography variant="h2">{props.title}</Typography>
-            <Typography variant="subtitle2">科目番号：{props.code}</Typography>
+            <Hidden smUp>
+                <Box display="flex" my={4}>{content}</Box>
+            </Hidden>
+            <Hidden xsDown>
+                <Box display="flex" mt={8} mb={4}>{content}</Box>
+            </Hidden>
         </React.Fragment>
-    );
-}
-
-interface TwitterButtonProps {
-    url: string,
-}
-function TwitterButton(props: TwitterButtonProps) {
-    return (
-        <TwitterShareButton url={props.url}>
-            <TwitterIcon size={64} round={true} />
-        </TwitterShareButton>
     );
 }
 
@@ -211,10 +220,10 @@ function OtherCard(props: OtherCardProps) {
             <CardContent>
                 <Grid container direction="column" spacing={2}>
                     <Grid item>
-                        <Button className={classes.button} variant="outlined" href={props.original_url} target="_blank">オリジナルサイトを表示</Button>
+                        <Button className={classes.button} variant="outlined" href={props.original_url} target="_blank" rel="noreferrer">オリジナルサイトを表示</Button>
                     </Grid>
                     <Grid item>
-                        <Button className={classes.button} variant="contained" color="secondary" startIcon={<ReportProblem />}>問題を報告</Button>
+                        <Button className={classes.button} variant="contained" color="secondary" startIcon={<ReportProblem />} href="https://github.com/makutamoto/websyllabus-frontend/issues" target="_blank" rel="noreferrer">問題を報告</Button>
                     </Grid>
                 </Grid>
             </CardContent>
@@ -223,10 +232,7 @@ function OtherCard(props: OtherCardProps) {
 }
 
 interface SidebarProps {
-    course_code: string,
-    college: string,
     year: string,
-    course_title: string,
     course_category: string,
     class_format: string,
     credits: string,
@@ -249,6 +255,8 @@ function Sidebar(props: SidebarProps) {
                     <InformationList title="科目区分">{props.course_category}</InformationList>
                     <InformationList title="履修単位">{props.credits}</InformationList>
                     <InformationList title="周時間数">{props.classes_per_week}</InformationList>
+                    <InformationList title="開設学科">{props.department}</InformationList>
+                    <InformationList title="対象学年">{props.student_grade}</InformationList>
                     <InformationList title="開講年度">{props.year}</InformationList>
                     <InformationList title="教科書/教材">{props.textbook_and_or_teaching_materials}</InformationList>
                 </TitleCard>
@@ -314,24 +322,13 @@ function MainContent(props: MainContentProps) {
     );
 }
 
-interface TopBarProps {
-    title: string,
-    code: string,
-}
-function TopBar(props: TopBarProps) {
-    return (
-        <Box display="flex" mt={8} mb={4}>
-            <Box flexGrow={1}>
-                <CourseTitle title={props.title} code={props.code} />
-            </Box>
-            <Box>
-                <TwitterButton url={window.location.href} />
-            </Box>
-        </Box>
-    );
-}
-
-interface SyllabusProps {
+const SyllabusStyles = {
+    root: {
+        position: 'relative' as any,
+        height: '100%' as any,
+    },
+};
+export interface SyllabusData {
     course_code: string,
     college: string,
     year: string,
@@ -350,18 +347,72 @@ interface SyllabusProps {
     evaluation_weight: EvaluationTable,
     original_url: string,
 }
-export default function Syllabus(props: SyllabusProps) {
-    return (
-        <Container maxWidth="md">
-            <TopBar title={props.course_title} code={props.course_code} />
-            <Grid container spacing={4}>
-                <Grid item sm={4} xs={12}>
-                    <Sidebar {...props} />
-                </Grid>
-                <Grid item sm={8} xs={12}>
-                    <MainContent evaluation={props.evaluation_weight} first={props.course_plan_first_term} second={props.course_plan_second_term} original_url={props.original_url} />
-                </Grid>
-            </Grid>
-        </Container>
-    );
+export interface SyllabusProps {
+    phone: boolean,
+    isFetching: boolean,
+    data: SyllabusData | null,
+    closeMenu: () => void,
+    onUpdate: () => void,
+    classes: any,
+    match: { params: { department: string, course: string }},
 }
+class Syllabus extends React.Component<SyllabusProps> {
+    componentDidMount() {
+        this.props.onUpdate();
+    }
+    componentDidUpdate(prevProps: SyllabusProps) {
+        if(this.props.match.params.department !== undefined || this.props.match.params.course !== undefined) {
+            if(prevProps.match.params.department + prevProps.match.params.course !== this.props.match.params.department + this.props.match.params.course) {
+                if(this.props.phone) this.props.closeMenu();
+                this.props.onUpdate();
+            }
+        }
+    }
+    render() {
+        let content: JSX.Element | null;
+        if(this.props.isFetching) {
+            content = (
+                <Center>
+                    <CircularProgress />
+                </Center>
+            );
+        } else if(this.props.data === null) {
+            content = (
+                <Center>
+                    <Typography variant="h5">NOT SELECTED</Typography>
+                </Center>
+            );
+        } else {
+            content = (
+                <React.Fragment>
+                    <CourseTitle title={this.props.data.course_title} code={this.props.data.course_code} />
+                    <Grid container spacing={4}>
+                        <Grid item sm={4} xs={12}>
+                            <Sidebar {...this.props.data} />
+                        </Grid>
+                        <Grid item sm={8} xs={12}>
+                            <MainContent evaluation={this.props.data.evaluation_weight} first={this.props.data.course_plan_first_term} second={this.props.data.course_plan_second_term} original_url={this.props.data.original_url} />
+                        </Grid>
+                    </Grid>
+                </React.Fragment>
+            );
+        }
+    
+        return (
+            <Container className={this.props.classes.root} maxWidth="md">{content}</Container>
+        );
+    }
+}
+
+const mapStateToProps = (state: StateType) => ({
+    phone: state.phone,
+    isFetching: state.courseInfo.isFetching,
+    data: state.courseInfo.info,
+});
+
+const mapDispatchToProps = (dispatch: DispatchType) => ({
+    closeMenu: () => dispatch(setMenu(false)),
+    onUpdate: () => dispatch(fetchCourseInfo() as any),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(withStyles(SyllabusStyles)(Syllabus));
