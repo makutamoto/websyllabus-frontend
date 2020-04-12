@@ -1,6 +1,6 @@
 import React from 'react';
 import { Box, Button, Card, CardContent, CircularProgress, Container, Grid, Hidden, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Toolbar, Typography } from '@material-ui/core'
-import { makeStyles, withStyles } from '@material-ui/core/styles';
+import { makeStyles } from '@material-ui/core/styles';
 import { ReportProblem } from '@material-ui/icons';
 import { ResponsivePie, PieDatum } from '@nivo/pie';
 import { connect } from 'react-redux';
@@ -8,7 +8,8 @@ import { connect } from 'react-redux';
 import { StateType } from '../reducers'
 import { fetchCourseInfo, setMenu } from '../actions';
 import { DispatchType } from '..';
-import { Center } from '../components/Center';
+import Center from '../components/Center';
+import TitleCard from '../components/TitleCard';
 
 interface CourseTitleProps {
     title: string,
@@ -35,27 +36,6 @@ function CourseTitle(props: CourseTitleProps) {
                 <Box display="flex" mt={8} mb={4}>{content}</Box>
             </Hidden>
         </React.Fragment>
-    );
-}
-
-const useTitleStyles = makeStyles({
-    card: {
-        overflow: 'visible',
-    },
-});
-interface TitleCardProps {
-    title: string,
-    children: any,
-}
-function TitleCard(props: TitleCardProps) {
-    const classes = useTitleStyles();
-    return (
-        <Card className={classes.card}>
-            <CardContent>
-                <Typography variant="h4" gutterBottom>{props.title}</Typography>
-                {props.children}
-            </CardContent>
-        </Card>
     );
 }
 
@@ -322,12 +302,6 @@ function MainContent(props: MainContentProps) {
     );
 }
 
-const SyllabusStyles = {
-    root: {
-        position: 'relative' as any,
-        height: '100%' as any,
-    },
-};
 export interface SyllabusData {
     course_code: string,
     college: string,
@@ -353,7 +327,6 @@ export interface SyllabusProps {
     data: SyllabusData | null,
     closeMenu: () => void,
     onUpdate: () => void,
-    classes: any,
     match: { params: { department: string, course: string }},
 }
 class Syllabus extends React.Component<SyllabusProps> {
@@ -399,7 +372,7 @@ class Syllabus extends React.Component<SyllabusProps> {
         }
     
         return (
-            <Container className={this.props.classes.root} maxWidth="md">{content}</Container>
+            <Container className="centerParent" maxWidth="md">{content}</Container>
         );
     }
 }
@@ -415,4 +388,4 @@ const mapDispatchToProps = (dispatch: DispatchType) => ({
     onUpdate: () => dispatch(fetchCourseInfo() as any),
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(withStyles(SyllabusStyles)(Syllabus));
+export default connect(mapStateToProps, mapDispatchToProps)(Syllabus);

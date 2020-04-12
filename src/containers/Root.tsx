@@ -4,7 +4,7 @@ import MenuIcon from '@material-ui/icons/Menu';
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import { makeStyles, withStyles, Theme } from '@material-ui/core/styles';
 import { connect } from 'react-redux';
-import { Route } from 'react-router';
+import { Route, Switch } from 'react-router';
 import { useHistory } from 'react-router-dom';
 
 import { DispatchType } from '../index';
@@ -13,6 +13,7 @@ import { StateType } from '../reducers';
 import { fetchColleges, fetchCourses, toggleMenu } from '../actions';
 import SideMenu from './SideMenu';
 import Syllabus from './Syllabus';
+import { Home } from './Home';
 
 const useKosenSelectorStyle = makeStyles((theme: Theme) => ({
     noSpaceY: {
@@ -26,7 +27,7 @@ const useKosenSelectorStyle = makeStyles((theme: Theme) => ({
     },
 }));
 interface KosenSelectorProps {
-    college: string,
+    college?: string,
     kosens: KosenData[],
 }
 function KosenSelector(props: KosenSelectorProps): JSX.Element {
@@ -45,11 +46,12 @@ function KosenSelector(props: KosenSelectorProps): JSX.Element {
         <React.Fragment>
             <List className={classes.noSpaceY} component="nav" aria-label="Device settings">
                 <ListItem className={classes.noSpaceY} button onClick={onClick}>
-                    <ListItemText className={classes.noSpaceY} primary="Syllabus" secondary={props.college} secondaryTypographyProps={{style: { color: "#FFFFFF" }}} />
+                    <ListItemText className={classes.noSpaceY} primary="Syllabus" secondary={props.college === undefined ? 'About' : props.college} secondaryTypographyProps={{style: { color: "#FFFFFF" }}} />
                     <KeyboardArrowDownIcon className={classes.arrowIcon} />
                 </ListItem>
             </List>
             <Menu anchorEl={anchorEl} keepMounted open={Boolean(anchorEl)} onClose={onClose}>
+                <MenuItem selected={props.college === undefined} onClick={(e) => onChange('')}>About</MenuItem>
                 {props.kosens.map(kosen => (
                 <MenuItem key={kosen.college} selected={kosen.college === props.college} onClick={(e) => onChange(kosen.college)}>
                     {kosen.college}
@@ -87,20 +89,8 @@ class Root extends React.Component<RootProps> {
         if(this.props.kosens === null) {
             kosens = <CircularProgress />;
         } else {
-            kosens = <KosenSelector college={this.props.match.params.college!} kosens={this.props.kosens} />;
+            kosens = <KosenSelector college={this.props.match.params.college} kosens={this.props.kosens} />;
         }
-        let content = (
-            <Box flexGrow={1}>
-                <Box className="fullHeight" display="flex">
-                    <Box>
-                        <SideMenu />
-                    </Box>
-                    <Box className="fullHeight" flexGrow={1}>
-                        <Route path="/:college/:department?/:course?" component={Syllabus} />
-                    </Box>
-                </Box>
-            </Box>
-        );
     
         return (
             <Box className="flexColumn" display="flex">
@@ -115,7 +105,19 @@ class Root extends React.Component<RootProps> {
                     </AppBar>
                     <Toolbar />
                 </Box>
-                {this.props.match.params.college && content}
+                <Box flexGrow={1}>
+                    <Box className="fullHeight" display="flex">
+                        <Box>
+                            <SideMenu />
+                        </Box>
+                        <Box className="fullHeight" flexGrow={1}>
+                            <Switch>
+                                <Route path="/:college/:department?/:course?" component={Syllabus} />
+                                <Route component={Home} />
+                            </Switch>
+                        </Box>
+                    </Box>
+                </Box>
             </Box>
         );
     }

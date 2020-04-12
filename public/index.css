@@ -9,3 +9,8 @@
 .fullHeight {
     height: 100%;
 }
+
+.centerParent {
+    position: relative;
+    height: 100%;
+}

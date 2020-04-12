@@ -9,7 +9,7 @@ import { Link } from 'react-router-dom';
 import { StateType } from '../reducers';
 import { DispatchType } from '../index';
 import { setMenu, setPhone, fetchCourses } from '../actions';
-import { Center } from '../components/Center';
+import Center from '../components/Center';
 
 const useCourseStyles = makeStyles({
     root: {

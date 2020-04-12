@@ -17,7 +17,7 @@ const useCenterStyles = makeStyles({
 interface CenterProps {
     children: JSX.Element | JSX.Element[],
 }
-export function Center(props: CenterProps) {
+export default function Center(props: CenterProps) {
     const classes = useCenterStyles();
 
     return (
