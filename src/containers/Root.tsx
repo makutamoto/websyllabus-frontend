@@ -46,7 +46,7 @@ function KosenSelector(props: KosenSelectorProps): JSX.Element {
         <React.Fragment>
             <List className={classes.noSpaceY} component="nav" aria-label="Device settings">
                 <ListItem className={classes.noSpaceY} button onClick={onClick}>
-                    <ListItemText className={classes.noSpaceY} primary="Syllabus" secondary={props.college === undefined ? 'About' : props.college} secondaryTypographyProps={{style: { color: "#FFFFFF" }}} />
+                    <ListItemText className={classes.noSpaceY} primary="CherryGrape" secondary={props.college === undefined ? 'About' : props.college} secondaryTypographyProps={{style: { color: "#FFFFFF" }}} />
                     <KeyboardArrowDownIcon className={classes.arrowIcon} />
                 </ListItem>
             </List>

@@ -23,9 +23,9 @@ export function Home(): JSX.Element {
         <Box className="centerParent">
             <Center>
                 <Box className={classes.card}>
-                    <TitleCard title="Web Syllabus" action={action}>
+                    <TitleCard title="CherryGrape" action={action}>
                         <p>
-                            このサイトは国立高等専門学校機構が提供する高専Webシラバスを整理し見やすくするために個人的用途で制作されました。
+                            このサイトは国立高等専門学校機構が提供する高専Webシラバスを整理し見やすくするために、個人的用途で制作されました。
                             このサイトのコンテンツのデータはWebスクレイピングにより取得されており、権利はすべて本家サイトに帰属しています。
                         </p>
                     </TitleCard>
