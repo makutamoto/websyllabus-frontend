@@ -327,7 +327,7 @@ export interface SyllabusProps {
     data: SyllabusData | null,
     closeMenu: () => void,
     onUpdate: () => void,
-    match: { params: { department: string, course: string }},
+    match: { params: { college: string, department?: string, course?: string }},
 }
 class Syllabus extends React.Component<SyllabusProps> {
     componentDidMount() {
@@ -335,10 +335,12 @@ class Syllabus extends React.Component<SyllabusProps> {
     }
     componentDidUpdate(prevProps: SyllabusProps) {
         if(this.props.match.params.department !== undefined || this.props.match.params.course !== undefined) {
-            if(prevProps.match.params.department + prevProps.match.params.course !== this.props.match.params.department + this.props.match.params.course) {
+            if(prevProps.match.params.department! + prevProps.match.params.course! !== this.props.match.params.department! + this.props.match.params.course!) {
                 if(this.props.phone) this.props.closeMenu();
                 this.props.onUpdate();
             }
+        } else if(prevProps.match.params.college !== this.props.match.params.college) {
+            this.props.onUpdate();
         }
     }
     render() {

@@ -105,7 +105,7 @@ class Root extends React.Component<RootProps> {
                     </AppBar>
                     <Toolbar />
                 </Box>
-                <Box flexGrow={1}>
+                <Box className="fullHeight" flexGrow={1}>
                     <Box className="fullHeight" display="flex">
                         <Box>
                             <SideMenu />
